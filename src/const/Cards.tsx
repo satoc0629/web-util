@@ -5,7 +5,16 @@ import {Base64EncoderDecoder} from "../page/Base64EncoderDecoder";
 import {UnixTime} from "../page/UnixTime";
 
 export const cards: CardInterface[] = [
-    {title: "Qiita用環境バッジ", description: "Qiita投稿用環境入力", link: "/qiita/badge"},
+    {
+        title: "Markdown用テーブルを列から生成",
+        description: "マークダウン用エディタ",
+        link: "/md/fromColumn"
+    },
+    {
+        title: "Qiita用環境バッジ",
+        description: "Qiita投稿用環境入力",
+        link: "/qiita/badge"
+    },
     {
         title: "URLエンコーダー・デコーダー",
         description: "URL Encoder/Decoder",

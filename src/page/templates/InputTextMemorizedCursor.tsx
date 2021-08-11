@@ -6,12 +6,12 @@ export interface InputTextMemorizedCursorProps {
     value: string
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     dispatch: React.DispatchWithoutAction
-    actionType: UnixTimeActionType // よくない依存関係
+    inputType: UnixTimeActionType // よくない依存関係
     excludeCharactersRegexp?: string
 }
 
 export const InputTextMemorizedCursor = (props: PropsWithChildren<InputBaseComponentProps>) => {
-    const {inputRef, actionType, excludeCharactersRegexp, dispatch, ...other} = props;
+    const {inputRef, inputType, excludeCharactersRegexp, dispatch, ...other} = props;
 
     const maxLength = useRef(props.value.length - 1)
     const [positionStart, setPositionStart] = useState(props.value.length - 1)

@@ -127,10 +127,18 @@ function unixFormat(unixTime: string, toType: ConvertType, fromType: ConvertType
     let fromTo = from - to
     if (fromTo === 0n) {
         bigint = BigInt(unixTime)
-    } else if (fromTo < 0) {
-        bigint = BigInt(unixTime) * (1000n ** BigInt(Math.abs(Number(fromTo))))
     } else {
-        bigint = BigInt(unixTime) / (1000n ** BigInt(Math.abs(Number(fromTo))))
+        let tmp = 1n
+        for (let i = 0; i < Math.abs(Number(fromTo)); i++) {
+            tmp = tmp * 1000n
+        }
+
+        if (fromTo < 0) {
+            bigint = BigInt(unixTime) * tmp
+        } else {
+            bigint = BigInt(unixTime) / tmp
+            // bigint = BigInt(unixTime) / (1000n ** fromTo)
+        }
     }
 
     return bigint.toString()
@@ -226,12 +234,13 @@ export const UnixTime = () => {
                 }
                 break
             default:
-                newState.dateOfUnixTimeSeconds = moment(action.value).format(secondsFormat)
+                console.log(`action.value.substr(0, 19):${action.value.substr(0, 19)}`)
+                const secondMoment = moment(action.value.substr(0, 19))
+                newState.dateOfUnixTimeSeconds = secondMoment.format(secondsFormat)
                 newState.dateOfUnixTimeMillSeconds = action.inputType === "dateOfUnixTimeMillSeconds" ? action.value : moment(action.value).format(millSecondsFormat)
                 // const millSecondDotStartIndex = 19 // action.value.indexOf(".")
                 // console.log(`millSecondsIndex:${millSecondDotStartIndex}`)
                 const millSecondAfter = action.value.substr(19 + 1)
-                const secondMoment = moment(action.value.substr(0, 19))
                 newState.dateOfUnixTimeMicroSeconds = action.inputType === "dateOfUnixTimeMicroSeconds" ? action.value : secondMoment.format(secondsFormat).toString() + "." + millSecondAfter.padStart(6, "0").substring(0, 6)
                 newState.dateOfUnixTimeNanoSeconds = action.inputType === "dateOfUnixTimeNanoSeconds" ? action.value : secondMoment.format(secondsFormat).toString() + "." + millSecondAfter.padStart(9, "0").substring(0, 9)
 
@@ -332,7 +341,7 @@ export const UnixTime = () => {
                                 inputProps: {
                                     value: v.state ? v.state : "",
                                     dispatch: dispatch,
-                                    actionType: v.inputType,
+                                    inputType: v.inputType,
                                     excludeCharactersRegexp: "^(?![0-9]).*"
                                 } as InputTextMemorizedCursorProps,
                                 inputComponent: InputTextMemorizedCursor
@@ -357,7 +366,7 @@ export const UnixTime = () => {
                                 inputProps: {
                                     value: v.state ? v.state : "",
                                     dispatch: dispatch,
-                                    actionType: v.inputType,
+                                    inputType: v.inputType,
                                     excludeCharactersRegexp: "^(?![0-9]).*"
                                 } as InputTextMemorizedCursorProps,
                                 inputComponent: InputTextMemorizedCursor
