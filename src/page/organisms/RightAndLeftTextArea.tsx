@@ -48,31 +48,35 @@ export const RightAndLeftTextArea = (props: PropsWithChildren<Props>) => {
     }
 
     const [state, dispatch] = useReducer((state: ChangeContainer, action: ChangeAction) => {
-        switch (action.type) {
-            case "left":
-                if (action.value) {
-                    state.right = props.onLeftToRight(action.value)
-                    state.left = props.onLeftToLeft ? props.onLeftToLeft(action.value) : action.value
-                } else {
+        try {
+            switch (action.type) {
+                case "left":
+                    if (action.value) {
+                        state.right = props.onLeftToRight(action.value)
+                        state.left = props.onLeftToLeft ? props.onLeftToLeft(action.value) : action.value
+                    } else {
+                        state.right = ""
+                        state.left = ""
+                    }
+                    break
+                case "right":
+                    if (action.value) {
+                        state.right = props.onRightToRight ? props.onRightToRight(action.value) : action.value
+                        state.left = props.onRightToLeft(action.value)
+                    } else {
+                        state.right = ""
+                        state.left = ""
+                    }
+                    break
+                case "clear":
                     state.right = ""
                     state.left = ""
-                }
-                break
-            case "right":
-                if (action.value) {
-                    state.right = props.onRightToRight ? props.onRightToRight(action.value) : action.value
-                    state.left = props.onRightToLeft(action.value)
-                } else {
-                    state.right = ""
-                    state.left = ""
-                }
-                break
-            case "clear":
-                state.right = ""
-                state.left = ""
-                break
-            default:
-                throw new Error()
+                    break
+                default:
+                    throw new Error()
+            }
+        } catch (e) {
+            console.error(e)
         }
         return {...state}
     }, {left: "", right: ""})

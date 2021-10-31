@@ -7,7 +7,7 @@ function getGlobalIP() {
     return firebase.functions().httpsCallable("yourIP")()
 }
 
-export const GlobalIP = () => {
+const GlobalIP = () => {
     const [globalIP, setGlobalIP] = useState("0.0.0.0")
 
     useEffect(() => {
@@ -22,3 +22,4 @@ export const GlobalIP = () => {
         {globalIP}
     </>
 }
+export default GlobalIP

@@ -145,7 +145,7 @@ function unixFormat(unixTime: string, toType: ConvertType, fromType: ConvertType
         .padStart(padIndex, "0").slice(-padIndex)
 }
 
-export const UnixTime = () => {
+const UnixTime = () => {
     const classes = useStyles()
     const location = useLocation()
     const card = cards.filter(e => e.link === location.pathname)[0]
@@ -382,3 +382,4 @@ export const UnixTime = () => {
         </Button>
     </>
 }
+export default UnixTime

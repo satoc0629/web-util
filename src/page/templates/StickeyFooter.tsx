@@ -8,8 +8,9 @@ function Copyright() {
     return (
         <Typography variant="body2" color="textSecondary">
             {'Copyright © '}
-            <Link color="inherit" href="https://satoc0629.github.io/satoc.github.io/">
-                SierSetup@GitHub
+            {/*<Link color="inherit" href="https://satoc0629.github.io/satoc.github.io/">*/}
+            <Link color="inherit" href="/">
+                @GitHub
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}

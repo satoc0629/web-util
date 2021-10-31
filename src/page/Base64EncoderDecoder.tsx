@@ -1,6 +1,6 @@
 import {ConvertTemplateOneToOne} from "./templates/ConvertTemplateOneToOne";
 
-export const Base64EncoderDecoder = () => {
+const Base64EncoderDecoder = () => {
 
     const encode = (arg: string) => {
         try {
@@ -26,3 +26,4 @@ export const Base64EncoderDecoder = () => {
                                     rightPlaceholder={"44GT44KT44Gr44Gh44Gv"}
                                     onLeftToRight={encode} onRightToLeft={decode}/>
 }
+export default Base64EncoderDecoder
