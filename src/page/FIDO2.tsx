@@ -146,9 +146,9 @@ const FIDO2 = () => {
             // transports: ["ble", "usb", "nfc", "internal"],
             // id: Buffer.from(credentialId).buffer
             // id: Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer
-            // id: credentialIdRaw.current
+            id: credentialIdRaw.current
             // id: Uint8Array.from(btoa(credentialId), c => c.charCodeAt(0)).buffer
-            id: new TextEncoder().encode(credentialId).buffer
+            // id: new TextEncoder().encode(credentialId).buffer
             // id: new TextEncoder().encode(credentialId).buffer
             // id: new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer
             // id: Uint8Array.from(atob(credentialId), c => c.charCodeAt(0)).buffer
@@ -270,7 +270,7 @@ const FIDO2 = () => {
             <h2>input</h2>
             <textarea cols={80} rows={20} value={input} disabled={true}/>
         </div>
-        <label htmlFor={"credentialId"}>credentialId</label>
+        <h2>credentialId</h2>
         <div id={"credentialId"}>{credentialId}</div>
         <br/>
     </>
