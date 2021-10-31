@@ -96,9 +96,9 @@ const FIDO2 = () => {
                         console.log(`credential is PublicKeyCredential`)
                         console.log(r)
                         credentialIdRaw.current = r.rawId
-                        // setCredentialID(r.id)
+                        setCredentialID(r.id)
                         // setCredentialID(new TextDecoder().decode(r.rawId))
-                        setCredentialID(arrayBufferToString(r.rawId))
+                        // setCredentialID(arrayBufferToString(r.rawId))
                         setOutput(JSON.stringify({
                             id: r.id,
                             rawId: arrayBufferToString(r.rawId),
@@ -159,11 +159,11 @@ const FIDO2 = () => {
         const options = {
             "publicKey": {
                 challenge: challenge.buffer,
-                // timeout: 60000,
-                // userVerification: authenticatorSelection.userVerification,
-                // allowCredentials: [allowCredential],
-                // extensions: undefined,
-                // rpId: hostname()
+                timeout: 60000,
+                userVerification: authenticatorSelection.userVerification,
+                allowCredentials: [allowCredential],
+                extensions: undefined,
+                rpId: hostname()
             }
         } as CredentialRequestOptions
         console.log(`get options:${JSON.stringify(options)}`)
