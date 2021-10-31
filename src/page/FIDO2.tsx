@@ -35,6 +35,7 @@ const FIDO2 = () => {
     const classes = useStyles()
     const location = useLocation()
     const card = cards.filter(e => e.link === location.pathname)[0]
+    const [input, setInput] = useState("")
     const [output, setOutput] = useState("")
     const arrayBufferToString = (target: ArrayBuffer) => {
         return new TextDecoder().decode(target)
@@ -81,6 +82,7 @@ const FIDO2 = () => {
         }
     }
     const handleRegister = () => {
+        setInput(JSON.stringify(createInput))
         navigator.credentials.create(createInput)
             .then((r: (Credential | null)) => {
                 if (r) {
@@ -109,20 +111,25 @@ const FIDO2 = () => {
     }
 
     const handleGet = ()=>{
+        const allowCredential = {
+            type: "public-key",
+            transports: ["ble", "usb","nfc","internal"],
+            // id: Buffer.from(credentialId).buffer
+            id: Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer
+        }
         const options = {
             publicKey: {
                 challenge: challenge.buffer,
                 timeout: 60000,
                 userVerification: authenticatorSelection.userVerification,
-                allowCredentials: [{
-                    type: "public-key",
-                    transports: ["ble", "usb","nfc","internal"],
-                    id: new TextEncoder().encode(credentialId)
-                }],
+                allowCredentials: [allowCredential],
                 extensions: undefined,
                 rpId: hostname()
             }
         } as CredentialRequestOptions
+        console.log(`get options:${JSON.stringify(options)}`)
+
+        setInput(JSON.stringify(options))
         navigator.credentials.get(options).then((r: Credential|null) =>{
             if (r) {
                 if (r instanceof PublicKeyCredential) {
@@ -130,6 +137,10 @@ const FIDO2 = () => {
                 }
             }
         })
+    }
+
+    const handleClearOutput = ()=>{
+        setOutput("")
     }
 
 
@@ -206,12 +217,13 @@ const FIDO2 = () => {
         </div>
         <Button onClick={handleRegister} variant={"outlined"}>Register</Button>
         <Button onClick={handleGet} variant={"outlined"}>Get</Button>
+        <Button onClick={handleClearOutput} variant={"outlined"}>Clear Output</Button>
         <br/>
         <div className={classes.column1Area}>
             <h2>output</h2>
             <div>{output}</div>
             <h2>input</h2>
-            <textarea cols={80} rows={20} value={JSON.stringify(createInput)} disabled={true}/>
+            <textarea cols={80} rows={20} value={input} disabled={true}/>
         </div>
         <label htmlFor={"credentialId"}>credentialId</label>
         <div id={"credentialId"}>{credentialId}</div>
