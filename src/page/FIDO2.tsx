@@ -1,11 +1,12 @@
 import {Button, FormControlLabel, Radio, RadioGroup, TextField} from "@material-ui/core";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {hostname} from "os";
 import {Overview} from "./modlecules/Overview";
 import {useLocation} from "react-router-dom";
 import {cards} from "../const/Cards";
 import {makeStyles} from "@material-ui/core/styles";
-import {RadioButtonChecked} from "@material-ui/icons";
+import base64url from "base64url";
+import * as cbor from "cbor"
 
 const useStyles = makeStyles((theme) => ({
     column1Area: {
@@ -37,6 +38,9 @@ const FIDO2 = () => {
     const card = cards.filter(e => e.link === location.pathname)[0]
     const [input, setInput] = useState("")
     const [output, setOutput] = useState("")
+
+    const credentialIdRaw = useRef({} as ArrayBuffer);
+
     const arrayBufferToString = (target: ArrayBuffer) => {
         return new TextDecoder().decode(target)
     }
@@ -91,6 +95,7 @@ const FIDO2 = () => {
                     if (r instanceof PublicKeyCredential) {
                         console.log(`credential is PublicKeyCredential`)
                         console.log(r)
+                        credentialIdRaw.current = r.rawId
                         setCredentialID(r.id)
                         setOutput(JSON.stringify({
                             id: r.id,
@@ -110,19 +115,42 @@ const FIDO2 = () => {
             })
     }
 
-    const handleGet = ()=>{
+    const handleGet = () => {
+        function utf8_to_b64(str: string) {
+            return window.btoa(unescape(encodeURIComponent(str)));
+        }
+
+        console.log(Buffer.from(credentialId).buffer)
+        console.log(Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer)
+        console.log(new TextEncoder().encode(credentialId).buffer)
+        console.log(Buffer.from(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
+        console.log(Uint8Array.from(credentialId.replaceAll('_','/').replaceAll('-','+'), c => c.charCodeAt(0)).buffer)
+        console.log(new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
+        console.log(Uint8ClampedArray.from(credentialId, c => c.charCodeAt(0)).buffer)
+        console.log(cbor.encode(credentialId).buffer)
+        console.log("answer buffer")
+        console.log(credentialIdRaw.current)
+        console.log(new TextDecoder("unicode").decode(credentialIdRaw.current))
         const allowCredential = {
             type: "public-key",
-            transports: ["ble", "usb","nfc","internal"],
+            transports: ["ble", "usb", "nfc", "internal"],
             // id: Buffer.from(credentialId).buffer
-            id: Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer
-        }
+            // id: Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer
+            // id: credentialIdRaw.current
+            // id: Uint8Array.from(btoa(credentialId), c => c.charCodeAt(0)).buffer
+            // id: new TextEncoder().encode(credentialId).buffer
+            // id: new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer
+            // id: Uint8Array.from(atob(credentialId), c => c.charCodeAt(0)).buffer
+            // id: Uint8Array.from(utf8_to_b64(credentialId), c => c.charCodeAt(0)).buffer
+            // id: Uint8Array.from(base64url.decode(credentialId), c=>c.charCodeAt(0)).buffer
+            id: Uint8Array.from(base64url.decode(credentialId.replaceAll('_','/').replaceAll('-','+')), c=>c.charCodeAt(0)).buffer
+        } as PublicKeyCredentialDescriptor
         const options = {
             publicKey: {
                 challenge: challenge.buffer,
                 timeout: 60000,
                 userVerification: authenticatorSelection.userVerification,
-                allowCredentials: [allowCredential],
+                // allowCredentials: [allowCredential],
                 extensions: undefined,
                 rpId: hostname()
             }
@@ -130,7 +158,7 @@ const FIDO2 = () => {
         console.log(`get options:${JSON.stringify(options)}`)
 
         setInput(JSON.stringify(options))
-        navigator.credentials.get(options).then((r: Credential|null) =>{
+        navigator.credentials.get(options).then((r: Credential | null) => {
             if (r) {
                 if (r instanceof PublicKeyCredential) {
 
@@ -139,7 +167,7 @@ const FIDO2 = () => {
         })
     }
 
-    const handleClearOutput = ()=>{
+    const handleClearOutput = () => {
         setOutput("")
     }
 
@@ -189,7 +217,8 @@ const FIDO2 = () => {
                                       ...authenticatorSelection,
                                       requireResidentKey: true
                                   })}/>
-                <FormControlLabel control={<Radio/>} label={"false"} checked={!authenticatorSelection.requireResidentKey}
+                <FormControlLabel control={<Radio/>} label={"false"}
+                                  checked={!authenticatorSelection.requireResidentKey}
                                   onClick={() => setAuthenticatorSelection({
                                       ...authenticatorSelection,
                                       requireResidentKey: false
