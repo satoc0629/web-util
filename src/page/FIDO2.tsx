@@ -96,12 +96,14 @@ const FIDO2 = () => {
                         console.log(`credential is PublicKeyCredential`)
                         console.log(r)
                         credentialIdRaw.current = r.rawId
-                        setCredentialID(r.id)
+                        // setCredentialID(r.id)
+                        // setCredentialID(new TextDecoder().decode(r.rawId))
+                        setCredentialID(arrayBufferToString(r.rawId))
                         setOutput(JSON.stringify({
                             id: r.id,
                             rawId: arrayBufferToString(r.rawId),
                             response: {
-                                // attestationObject: arrayBufferToString(r.response.attestationObject),
+                                // attestationObject: cbor.decode(r.response.attestationObject as Buffer),
                                 clientDataJSON: arrayBufferToString(r.response.clientDataJSON)
                             },
                             type: r.type
@@ -120,39 +122,48 @@ const FIDO2 = () => {
             return window.btoa(unescape(encodeURIComponent(str)));
         }
 
-        console.log(Buffer.from(credentialId).buffer)
-        console.log(Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer)
-        console.log(new TextEncoder().encode(credentialId).buffer)
-        console.log(Buffer.from(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
-        console.log(Uint8Array.from(credentialId.replaceAll('_','/').replaceAll('-','+'), c => c.charCodeAt(0)).buffer)
-        console.log(new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
-        console.log(Uint8ClampedArray.from(credentialId, c => c.charCodeAt(0)).buffer)
-        console.log(cbor.encode(credentialId).buffer)
+        // console.log(Buffer.from(credentialId).buffer)
+        // console.log(Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer)
+        // console.log(new TextEncoder().encode(credentialId).buffer)
+        // console.log(Buffer.from(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
+        // console.log(Uint8Array.from(credentialId.replaceAll('_','/').replaceAll('-','+'), c => c.charCodeAt(0)).buffer)
+        // console.log(Uint8Array.from(new TextEncoder().encode(credentialId)).buffer)
+        // console.log(new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
+        // console.log(Uint8ClampedArray.from(credentialId, c => c.charCodeAt(0)).buffer)
+        // console.log(new TextEncoder().encode(utf8_to_b64(credentialId)).buffer)
+        const string = new TextDecoder().decode(credentialIdRaw.current)
+        console.log(string)
+        const buffer = new TextEncoder().encode(string)
+        console.log(buffer.buffer)
+        console.log(new TextEncoder().encode(credentialId))
         console.log("answer buffer")
         console.log(credentialIdRaw.current)
-        console.log(new TextDecoder("unicode").decode(credentialIdRaw.current))
+        console.log(new TextDecoder("sjis").decode(credentialIdRaw.current))
+        console.log(new TextDecoder("utf-8").decode(credentialIdRaw.current))
+
         const allowCredential = {
             type: "public-key",
-            transports: ["ble", "usb", "nfc", "internal"],
+            // transports: ["ble", "usb", "nfc", "internal"],
             // id: Buffer.from(credentialId).buffer
             // id: Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer
             // id: credentialIdRaw.current
             // id: Uint8Array.from(btoa(credentialId), c => c.charCodeAt(0)).buffer
+            id: new TextEncoder().encode(credentialId).buffer
             // id: new TextEncoder().encode(credentialId).buffer
             // id: new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer
             // id: Uint8Array.from(atob(credentialId), c => c.charCodeAt(0)).buffer
             // id: Uint8Array.from(utf8_to_b64(credentialId), c => c.charCodeAt(0)).buffer
             // id: Uint8Array.from(base64url.decode(credentialId), c=>c.charCodeAt(0)).buffer
-            id: Uint8Array.from(base64url.decode(credentialId.replaceAll('_','/').replaceAll('-','+')), c=>c.charCodeAt(0)).buffer
+            // id: Uint8Array.from(base64url.decode(credentialId.replaceAll('_','/').replaceAll('-','+')), c=>c.charCodeAt(0)).buffer
         } as PublicKeyCredentialDescriptor
         const options = {
-            publicKey: {
+            "publicKey": {
                 challenge: challenge.buffer,
-                timeout: 60000,
-                userVerification: authenticatorSelection.userVerification,
+                // timeout: 60000,
+                // userVerification: authenticatorSelection.userVerification,
                 // allowCredentials: [allowCredential],
-                extensions: undefined,
-                rpId: hostname()
+                // extensions: undefined,
+                // rpId: hostname()
             }
         } as CredentialRequestOptions
         console.log(`get options:${JSON.stringify(options)}`)
@@ -161,7 +172,12 @@ const FIDO2 = () => {
         navigator.credentials.get(options).then((r: Credential | null) => {
             if (r) {
                 if (r instanceof PublicKeyCredential) {
-
+                    setOutput(JSON.stringify({
+                        rawId: r.rawId,
+                        id: r.id,
+                        response: r.response,
+                        type: r.type
+                    }))
                 }
             }
         })
