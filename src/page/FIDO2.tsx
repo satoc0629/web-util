@@ -6,7 +6,7 @@ import {useLocation} from "react-router-dom";
 import {cards} from "../const/Cards";
 import {makeStyles} from "@material-ui/core/styles";
 import base64url from "base64url";
-import * as cbor from "cbor"
+const cbor = require('cbor-web/dist/cbor')
 
 const useStyles = makeStyles((theme) => ({
     column1Area: {
@@ -122,39 +122,20 @@ const FIDO2 = () => {
             return window.btoa(unescape(encodeURIComponent(str)));
         }
 
-        // console.log(Buffer.from(credentialId).buffer)
-        // console.log(Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer)
-        // console.log(new TextEncoder().encode(credentialId).buffer)
-        // console.log(Buffer.from(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
-        // console.log(Uint8Array.from(credentialId.replaceAll('_','/').replaceAll('-','+'), c => c.charCodeAt(0)).buffer)
-        // console.log(Uint8Array.from(new TextEncoder().encode(credentialId)).buffer)
-        // console.log(new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer)
-        // console.log(Uint8ClampedArray.from(credentialId, c => c.charCodeAt(0)).buffer)
-        // console.log(new TextEncoder().encode(utf8_to_b64(credentialId)).buffer)
         const string = new TextDecoder().decode(credentialIdRaw.current)
         console.log(string)
         const buffer = new TextEncoder().encode(string)
         console.log(buffer.buffer)
         console.log(new TextEncoder().encode(credentialId))
+        console.log(cbor.encode(credentialId))
+        console.log((cbor.encode(credentialId) as ArrayBuffer).slice(2))
         console.log("answer buffer")
         console.log(credentialIdRaw.current)
-        console.log(new TextDecoder("sjis").decode(credentialIdRaw.current))
-        console.log(new TextDecoder("utf-8").decode(credentialIdRaw.current))
 
         const allowCredential = {
             type: "public-key",
-            // transports: ["ble", "usb", "nfc", "internal"],
-            // id: Buffer.from(credentialId).buffer
-            // id: Uint8Array.from(credentialId, c => c.charCodeAt(0)).buffer
-            id: credentialIdRaw.current
-            // id: Uint8Array.from(btoa(credentialId), c => c.charCodeAt(0)).buffer
-            // id: new TextEncoder().encode(credentialId).buffer
-            // id: new TextEncoder().encode(credentialId).buffer
-            // id: new TextEncoder().encode(credentialId.replaceAll('_','/').replaceAll('-','+')).buffer
-            // id: Uint8Array.from(atob(credentialId), c => c.charCodeAt(0)).buffer
-            // id: Uint8Array.from(utf8_to_b64(credentialId), c => c.charCodeAt(0)).buffer
-            // id: Uint8Array.from(base64url.decode(credentialId), c=>c.charCodeAt(0)).buffer
-            // id: Uint8Array.from(base64url.decode(credentialId.replaceAll('_','/').replaceAll('-','+')), c=>c.charCodeAt(0)).buffer
+            transports: ["ble", "usb", "nfc", "internal"],
+            id: base64url.toBuffer(credentialId).buffer
         } as PublicKeyCredentialDescriptor
         const options = {
             "publicKey": {
@@ -265,10 +246,10 @@ const FIDO2 = () => {
         <Button onClick={handleClearOutput} variant={"outlined"}>Clear Output</Button>
         <br/>
         <div className={classes.column1Area}>
-            <h2>output</h2>
-            <div>{output}</div>
             <h2>input</h2>
             <textarea cols={80} rows={20} value={input} disabled={true}/>
+            <h2>output</h2>
+            <div>{output}</div>
         </div>
         <h2>credentialId</h2>
         <div id={"credentialId"}>{credentialId}</div>
