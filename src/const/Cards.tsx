@@ -2,6 +2,7 @@ import {CardInterface} from "../page/TopPage"
 import {lazy, Suspense} from "react"
 import Loading from "../page/atoms/Loading";
 import FIDO2 from "../page/FIDO2";
+import JSONBase64EncoderDecoder from "../page/JsonBase64EncoderDecoder";
 
 const URLEncoderDecoder = lazy(() => import("../page/URLEncoderDecoder"))
 const GlobalIP = lazy(() => import("../service/GlobalIP"))
@@ -30,6 +31,12 @@ export const cards: CardInterface[] = [
         description: "Base64 Encoder/Decoder",
         link: "/base64/converter",
         pageComponent: <Suspense fallback={<Loading/>}><Base64EncoderDecoder/></Suspense>
+    },
+    {
+        title: "JSON BASE64エンコーダー・デコーダー",
+        description: "JSON Base64 Encoder/Decoder",
+        link: "/base64/json/converter",
+        pageComponent: <Suspense fallback={<Loading/>}><JSONBase64EncoderDecoder/></Suspense>
     },
     {title: "JSONパーサー", description: "JSON Parser", link: "/json/parser"},
     {
